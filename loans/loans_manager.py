@@ -1,24 +1,14 @@
-import sqlite3
 import logging
-from contextlib import contextmanager
+from data.db_config import DBManager
 
 class LoanManager:
     def __init__(self, db_path):
         self.db_path = db_path
+        self.db_manager = DBManager(db_path)
         self.init_db()
 
-    @contextmanager
-    def db_connect(self):
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            yield cursor
-        finally:
-            conn.commit()
-            conn.close()
-
     def init_db(self):
-        with self.db_connect() as cursor:
+        with self.db_manager.db_connect() as cursor:
             cursor.execute('''CREATE TABLE IF NOT EXISTS loans (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
@@ -31,7 +21,7 @@ class LoanManager:
         logging.info("Table des prêts initialisée.")
 
     def loan_book(self, user_name: str, book_title: str):
-        with self.db_connect() as cursor:
+        with self.db_manager.db_connect() as cursor:
             cursor.execute("SELECT id FROM users WHERE username = ?", (user_name,))
             user = cursor.fetchone()
             cursor.execute("SELECT id, available FROM books WHERE title = ?", (book_title,))
@@ -49,7 +39,7 @@ class LoanManager:
                 print("Utilisateur ou livre non trouvé.")
 
     def return_book(self, user_name: str, book_title: str):
-        with self.db_connect() as cursor:
+        with self.db_manager.db_connect() as cursor:
             cursor.execute("SELECT id FROM users WHERE username = ?", (user_name,))
             user = cursor.fetchone()
             cursor.execute("SELECT id FROM books WHERE title = ?", (book_title,))
@@ -69,7 +59,7 @@ class LoanManager:
                 print("Utilisateur ou livre non trouvé.")
 
     def list_user_loans(self, user_name: str):
-        with self.db_connect() as cursor:
+        with self.db_manager.db_connect() as cursor:
             cursor.execute("SELECT id FROM users WHERE username = ?", (user_name,))
             user = cursor.fetchone()
             if user:
@@ -87,7 +77,7 @@ class LoanManager:
                 print(f"Utilisateur '{user_name}' non trouvé.")
 
     def display_all_loans(self):
-        with self.db_connect() as cursor:
+        with self.db_manager.db_connect() as cursor:
             cursor.execute('''SELECT u.username, b.title, b.author, l.loan_date FROM loans l
                               JOIN users u ON l.user_id = u.id
                               JOIN books b ON l.book_id = b.id''')

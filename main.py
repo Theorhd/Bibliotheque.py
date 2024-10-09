@@ -1,11 +1,12 @@
 import os
+from data.db_config import DBManager
 from users.users_manager import UserManager
-from books.books_manager import BookManager
+from medias.books_manager import BookManager
 from loans.loans_manager import LoanManager
 
 class LibraryApp:
     def __init__(self, db_path):
-        # Vérifiez si le dossier parent existe, sinon créez-le
+        self.db_manager = DBManager(db_path)
         db_folder = os.path.dirname(db_path)
         if not os.path.exists(db_folder):
             os.makedirs(db_folder)
@@ -37,16 +38,16 @@ class LibraryApp:
 
     def main(self):
         actions = {
-            '1': lambda: self.book_manager.add_book(input("Titre du livre : "), input("Auteur du livre : ")),
+            '1': lambda: self.book_manager.add_media(),
             '2': lambda: self.user_manager.add_user(input("Nom de l'utilisateur : ")),
             '3': lambda: self.loan_manager.loan_book(input("Nom de l'utilisateur : "), input("Titre du livre à emprunter : ")),
             '4': lambda: self.loan_manager.return_book(input("Nom de l'utilisateur : "), input("Titre du livre à rendre : ")),
-            '5': self.book_manager.list_available_books,
+            '5': self.book_manager.list_available_medias,
             '6': lambda: self.loan_manager.list_user_loans(input("Nom de l'utilisateur : ")),
             '7': self.user_manager.display_all_users,
-            '8': self.book_manager.display_all_books,
+            '8': self.book_manager.display_all_medias,
             '9': self.loan_manager.display_all_loans,
-            '10': lambda: self.book_manager.suppr_book(input("Titre du livre à supprimer : ")),
+            '10': lambda: self.book_manager.suppr_media(),
         }
 
         while True:
@@ -62,7 +63,6 @@ class LibraryApp:
                 print("Choix invalide. Veuillez réessayer.")
 
 if __name__ == "__main__":
-    dossier_actuel = os.path.dirname(__file__)
-    chemin_db = os.path.join(dossier_actuel, 'data', 'app.sqlite3')
-    app = LibraryApp(chemin_db)
+    db_path = os.path.join(os.path.dirname(__file__), 'data', 'app.sqlite3')
+    app = LibraryApp(db_path)
     app.main()
