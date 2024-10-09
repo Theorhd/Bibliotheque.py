@@ -1,9 +1,8 @@
-from medias.IMedia import IMedia
+from medias.IMedia import IMedia  
 
 class Book(IMedia):
     def __init__(self, title, author):
-        self.title = title
-        self.author = author
+        super().__init__(title, author)
         self.is_available = True
 
     def __str__(self):
