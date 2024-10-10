@@ -1,7 +1,7 @@
 # medias/book_manager.py
 from data.db_config import DBManager
 from medias.medias_manager import IMediasManager
-from medias.book import Book  # Importez la classe Book
+from medias.book import Book
 import logging
 
 class BookManager(IMediasManager):
@@ -22,7 +22,7 @@ class BookManager(IMediasManager):
     def add_media(self):
         title = input("Entrez le titre du livre: ")
         author = input("Entrez l'auteur du livre: ")
-        book = Book(title, author)  # Créer une instance de Book
+        book = Book(title, author)
         with self.db_manager.db_connect() as cursor:
             cursor.execute("INSERT INTO books (title, author) VALUES (?, ?)", (book.title, book.author))
         logging.info(f"Livre ajouté : {book.title} par {book.author}")
